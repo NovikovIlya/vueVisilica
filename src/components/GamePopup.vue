@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { GameStatus} from '../types/GameStatusType'
 
-type Status = 'win' | 'lose'
+export type PopupProps={
+  word:string;
+}
 
-const gameStatus = ref<Status | null>(null)
+const props = defineProps<PopupProps>()
+
+const emit = defineEmits<{
+  (e:'restart'):void;
+}>()
+
+const gameStatus = ref<GameStatus | null>(null)
 
 const isVisible = ref(false)
 
-const open = (status: Status) => {
+const open = (status: GameStatus) => {
   gameStatus.value = status
   isVisible.value = true
 }
@@ -19,6 +28,7 @@ defineExpose({
   open,
   close
 })
+
 </script>
 
 <template>
@@ -31,7 +41,7 @@ defineExpose({
         <h3>...имя: Лидия</h3>
       </template>
 
-      <button>Сыграть еще раз</button>
+      <button @click="emit('restart')">Сыграть еще раз</button>
     </div>
   </div>
 </template>
