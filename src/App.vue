@@ -6,34 +6,15 @@ import GameWord from './components/GameWord.vue'
 import GamePopup from './components/GamePopup.vue'
 import GameNotification from './components/GameNotification.vue'
 import { computed, onMounted, ref, watch } from 'vue'
-import {getRandomName} from './api/getRandomName'
+import { getRandomName } from './api/getRandomName'
+import { useRandomWord } from './composables/useRandomWord'
+import { useLetters } from './composables/useLetters'
 
-const isLose = computed(() => {
-  return wrongLetters.value.length === 6
-})
-const isWin = computed(() => {
-  return word.value.split('').every((x) => correctLetters.value.includes(x))
-})
-const word = ref('вася')
-const letters = ref<string[]>([])
+const { word, getRandomWord } = useRandomWord()
+const { correctLetters, wrongLetters, letters, isWin, isLose } = useLetters(word)
+
 const notification = ref<InstanceType<typeof GameNotification> | null>(null)
 const popup = ref<InstanceType<typeof GamePopup> | null>(null)
-const correctLetters = computed(() => {
-  return letters.value.filter((letter) => word.value.includes(letter))
-})
-const wrongLetters = computed(() => {
-  return letters.value.filter((letter) => !word.value.includes(letter))
-})
-
-const getRandomWord = async () => {
-  try {
-    const data = await getRandomName()
-    word.value = data.FirstName.toLowerCase()
-  } catch (error) {
-    console.log(error)
-    word.value = ''
-  }
-}
 
 window.addEventListener('keydown', ({ key }) => {
   if (isLose.value || isWin.value) return
@@ -50,6 +31,7 @@ window.addEventListener('keydown', ({ key }) => {
     letters.value.push(key.toLowerCase())
   }
 })
+
 const restart = async () => {
   await getRandomWord()
   letters.value = []
@@ -70,6 +52,7 @@ watch(correctLetters, () => {
     popup.value?.open('win')
   }
 })
+
 onMounted(() => {
   getRandomWord()
 })
